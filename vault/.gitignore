@@ -1,0 +1,13 @@
+# IDE files
+**/.vscode-server
+# Local creditionals
+/backup_id_rsa
+/connect_1ansible.sh
+/connect_2ansible.sh
+/hosts
+/id_rsa
+/id_rsa.pub
+/pass_vault
+/ssh_key_ansible1-ansible.pem
+/ssh_key_ansible2-ansible.pem
+
