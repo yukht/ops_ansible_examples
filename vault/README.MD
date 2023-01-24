@@ -15,4 +15,3 @@ ansible-vault encrypt --vault-password-file pass_vault id_rsa
 To start the exercise, you need to make sure that all these files are present and run the command
 ansible-playbook -v create_user.yml --vault-password-file pass_vault
 
-
