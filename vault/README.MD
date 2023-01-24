@@ -16,7 +16,3 @@ To start the exercise, you need to make sure that all these files are present an
 ansible-playbook -v create_user.yml --vault-password-file pass_vault
 
 
-
-
-
-
