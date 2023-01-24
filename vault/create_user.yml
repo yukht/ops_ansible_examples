@@ -1,0 +1,42 @@
+- hosts: ansible1
+  gather_facts: no
+  become: true
+  tasks:
+
+    - name: Create group elon
+      ansible.builtin.group:
+        name: elon
+        gid: 1005
+
+    - name: Create user elon
+      ansible.builtin.user:
+        name: elon
+        comment: Elon Musk
+        uid: 1005
+        append: true
+        group: elon
+        groups: 'adm'
+        shell: /bin/bash
+        # state: absent
+        # remove: true
+#        ssh_key_file: .ssh/id_rsa
+
+    - name: Create directory .ssh
+      file:
+        path: /home/elon/.ssh
+        state: directory
+        owner: elon
+        group: elon
+        mode: '0700'
+
+    - name: Copy a "id_rsa.pub" file on the remote machine
+      copy:
+        src: ./id_rsa
+        dest: /home/elon/.ssh/id_rsa
+        mode: '0600'
+        owner: elon
+        group: elon
+
+# ansible-playbook -vvv create_user.yml --vault-password-file pass_vault
+
+
