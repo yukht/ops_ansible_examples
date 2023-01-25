@@ -19,7 +19,6 @@
         shell: /bin/bash
         # state: absent
         # remove: true
-#        ssh_key_file: .ssh/id_rsa
 
     - name: Create directory .ssh
       file:
