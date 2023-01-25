@@ -1,2 +1,39 @@
 ---
-# tasks file for roles/users
+# tasks file for users role
+  - name: Create group superadmin
+    ansible.builtin.group:
+      name: superadmin
+      system: true
+
+  - name: Create user superadmin
+    ansible.builtin.user:
+      name: superadmin
+      comment: superadmin user
+      append: true
+      group: superadmin
+      groups: 'root'
+      shell: /bin/bash
+      system: true
+      # state: absent
+      # remove: true
+
+  - name: Create directory .ssh
+    file:
+      path: /home/superadmin/.ssh
+      state: directory
+      owner: superadmin
+      group: superadmin
+      mode: '0700'
+
+  - name: Copy a "id_rsa.pub" file on the remote machine
+    copy:
+      src: ./id_rsa.pub
+      dest: /home/superadmin/.ssh/authorized_keys
+      mode: '0600'
+      owner: superadmin
+      group: superadmin
+
+# ansible-playbook -vvv install_nginx_php.yml --vault-password-file pass_vault
+
+
+

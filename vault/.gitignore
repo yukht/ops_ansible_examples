@@ -1,5 +1,3 @@
-# IDE files
-**/.vscode-server
 # Local creditionals
 /backup_id_rsa
 /connect_1ansible.sh
