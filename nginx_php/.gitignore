@@ -1,0 +1,7 @@
+# IDE files
+**/.vscode-server
+# Local creditionals
+/connect_1ansible.sh
+/connect_2ansible.sh
+/hosts
+
