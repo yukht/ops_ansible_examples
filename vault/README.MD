@@ -1,4 +1,4 @@
-## You will need these files to run exercise create_user.yml ##
+### You will need these files to run exercise create_user.yml ###
 
 1. 'hosts' is a file that contains data for authorization on ansible-served hosts
 
