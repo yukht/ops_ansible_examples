@@ -1,0 +1,47 @@
+- hosts: ansible2
+  gather_facts: no
+  become: true
+  tasks:
+
+    - name: Install postfix
+      apt:
+        name: postfix
+        state: present
+      tags: 'init postfix'
+
+    - name: Edit postfix configuration
+      ansible.builtin.lineinfile:
+        path: /etc/postfix/main.cf
+        regexp: '^mydestination'
+        line: mydestination = mailserver, $myhostname, ansible-srv1.ru-central1.internal, localhost.ru-central1.internal, , localhost
+      notify: "reload postfix service"
+      tags: 'init postfix'
+
+    - name: Edit aliases
+      ansible.builtin.lineinfile:
+        path: /etc/aliases
+        insertafter: '^postmaster'
+        line: 'root: root_user@gmail.com'
+      tags: 'init postfix'
+
+    - name: Unistall postfix
+      apt:
+        name: postfix
+        state: absent
+        clean: yes
+        purge: yes
+      tags: 'drop postfix'
+
+    - name: Delete aliases
+      ansible.builtin.lineinfile:
+        path: /etc/aliases
+        search_string: 'root_user@gmail.com'
+        state: absent
+      tags: 'drop postfix'
+
+  handlers:
+    - name: Reload postfix
+      ansible.builtin.service:
+        name: postfix
+        state: reloaded
+      listen: "reload postfix service"
