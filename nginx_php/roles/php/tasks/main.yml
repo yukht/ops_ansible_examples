@@ -1,0 +1,76 @@
+---
+# tasks file for php role
+  - name: install php-fpm
+    apt: 
+      name: php-fpm
+      update_cache: yes
+
+  - name: Find pool.d directory
+    find:
+      paths: /etc/php
+      patterns: 'pool.d'
+      file_type: directory
+      recurse: yes
+    register: php_pools
+
+  # - debug:
+  #     var: item.path
+  #   with_items: "{{ php_pools.files }}"
+
+  # Set variable php_pool (this is a path of pool.d directory)
+  # in order to not use ansible loop when find a pool.d configuration file
+  - name: Set variable php_files - this is a path of pool.d directory
+    set_fact:
+      php_pool: "{{ item.path }}"
+    with_items: "{{ php_pools.files }}"
+
+  # Find the default configuration file in the directory {{ php_pool }} that was found in the previous step
+  # In my case this is the file 'www.conf'
+  - name: Find php-fpm pool configs
+    find:
+      paths: "{{ php_pool }}"
+      patterns: '*.conf'
+      file_type: file
+      recurse: no
+    register: php_configs
+
+  # - debug:
+  #     var: item.path
+  #   with_items: "{{ php_configs.files }}"
+
+  # Set variable php_config in order to use the name of configuration file for edit it
+  - name: Set variable php_files is a pool.d directory
+    set_fact:
+      php_config: "{{ item.path }}"
+    with_items: "{{ php_configs.files }}"
+
+  # - debug:
+  #     msg: "My config file is {{ php_config }}"
+
+  - name: Disable listening of socket file
+    replace:
+      path: "{{ php_config }}"
+      regexp: '^listen\ ='
+      replace: ";listen\ ="
+
+  - name: Enable php-fpm network port listening
+    lineinfile:
+      path: "{{ php_config }}"
+      insertafter: ';listen ='
+      line: "listen = 9000"
+
+  - name: Enable php-fpm listening localhost
+    lineinfile:
+      path: "{{ php_config }}"
+      regexp: '^;listen.allowed'
+      line: "listen.allowed_clients = 127.0.0.1"
+    notify: "reload php-fpm service"
+
+  # - name: Drop php-fpm
+  #   apt: 
+  #     name: php*-fpm*
+  #     update_cache: yes
+  #     state: absent
+  #     clean: yes
+  #     purge: yes
+  #   tags: 'drop php'

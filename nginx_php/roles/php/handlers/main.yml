@@ -1,0 +1,7 @@
+---
+# handlers file for roles/php
+  - name: Reload php-fpm
+    command:
+      cmd: 'find /etc/init.d -name "php*" -exec {} restart \;'
+    register: php_restarted
+    listen: "reload php-fpm service"

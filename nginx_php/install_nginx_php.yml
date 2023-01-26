@@ -3,5 +3,13 @@
   gather_facts: no
   become: true
   roles:
-    # - users
+    - users
     - http
+
+- hosts: ansible2
+  gather_facts: no
+  become: true
+  roles:
+    - users
+    - php
+
