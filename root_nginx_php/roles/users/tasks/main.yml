@@ -1,0 +1,37 @@
+---
+# tasks file for users role
+  - name: Create group superusers
+    ansible.builtin.group:
+      name: superusers
+
+  - name: Create user user1
+    ansible.builtin.user:
+      name: user1
+      comment: user1
+      group: superusers
+      shell: /bin/bash
+      # state: absent
+      # remove: true
+
+  - name: Create user user2
+    ansible.builtin.user:
+      name: user2
+      comment: user2
+      group: superusers
+      shell: /bin/bash
+      # state: absent
+      # remove: true
+
+  - name: Add superusers to the sudoers  and validate before saving
+    ansible.builtin.lineinfile:
+      path: /etc/sudoers
+      state: present
+      insertafter: '^%admin ALL='
+      line: '%superusers ALL=(ALL:ALL) NOPASSWD: ALL'
+      validate: /usr/sbin/visudo -cf %s
+
+
+# ansible-playbook -vvv install_root_nginx_php.yml --vault-password-file pass_vault
+
+
+

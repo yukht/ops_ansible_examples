@@ -1,0 +1,65 @@
+---
+# tasks file for php role
+  - name: install php-fpm
+    apt: 
+      name: php-fpm
+      update_cache: yes
+
+  # # - name: Drop php-fpm
+  # #   apt: 
+  # #     name: php*-fpm*
+  # #     update_cache: yes
+  # #     state: absent
+  # #     clean: yes
+  # #     purge: yes
+  # #   tags: 'drop php'
+
+  - name: install nginx
+    apt: name=nginx update_cache=yes
+  #     # state: absent
+  #     # clean: yes
+  #     # purge: yes
+
+  - name: Create webapp directory
+    file:
+      path: /opt/webapp
+      state: directory
+      owner: www-data
+      group: www-data
+
+  - name: Copy default index file to remote server
+    copy:
+      src: ./files/index.php
+      dest: /opt/webapp/index.php
+      owner: www-data
+      group: www-data
+
+  - name: Find socket
+    shell: 'ss -a | grep php | tr -s " " | cut -d " " -f 5'
+    register: find_socket
+
+  # Set variable php_socket for use to template
+  - name: Set variable php_socket, this is a path of php socket file
+    set_fact:
+      php_socket: "{{ find_socket.stdout }}"
+
+  # - debug:
+  #     var: php_socket
+
+  - name: Remove symlink
+    file:
+      path: "/etc/nginx/sites-enabled/default"
+      state: absent
+
+  - name: Copy default nginx configuration file to remote server
+    template:
+      src: ./templates/nginx.conf.j2
+      dest: /etc/nginx/sites-available/80.conf
+
+  - name: Create symlink to default nginx configuration file
+    file:
+      src: /etc/nginx/sites-available/80.conf
+      dest: /etc/nginx/sites-enabled/80
+      state: link
+    notify: "reload nginx service"
+

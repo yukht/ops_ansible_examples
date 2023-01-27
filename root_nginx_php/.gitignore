@@ -1,0 +1,7 @@
+# Local creditionals
+/connect_1ansible.sh
+/connect_2ansible.sh
+/hosts
+/pass_vault
+/id_rsa
+/id_rsa.pub
