@@ -1,15 +1,10 @@
 ---
-# - hosts: ansible1
-#   gather_facts: no
-#   become: true
-#   roles:
-#     - users
-#     - php_nginx
-
-- hosts: ansible2
+- hosts: ansible1
   gather_facts: no
   become: true
   roles:
+    - dnsmasq
     - users
     - php_nginx
+
 

@@ -1,0 +1,43 @@
+---
+# tasks file for dnsmasq role
+
+  - name: install dnsmasq
+    apt: 
+      name: dnsmasq
+      update_cache: yes
+
+  - name: After comment about default port put listen address
+    lineinfile:
+      path: /etc/dnsmasq.conf
+      insertafter: '^#port='
+      line: "server=8.8.8.8"
+
+  - name: Listen to local address and default port 53
+    lineinfile:
+      path: /etc/dnsmasq.conf
+      regexp: '^#listen-address='
+      line: "listen-address=127.0.0.1"
+
+  - name: Disable nameserver (systemd) in resolv.conf
+    replace:
+      path: /etc/resolv.conf
+      regexp: '^nameserver'
+      replace: "#nameserver"
+
+  - name: Enable nameserver (dnsmasq) in resolv.conf
+    lineinfile:
+      path: /etc/resolv.conf
+      insertafter: '^#nameserver'
+      line: "nameserver 127.0.0.1"
+
+  - name: stop local dns
+    service:
+      name: systemd-resolved
+      state: stopped
+      enabled: no
+
+  - name: start dnsmasq
+    service:
+      name: dnsmasq
+      state: restarted
+      enabled: yes
