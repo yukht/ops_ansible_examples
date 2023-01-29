@@ -1,0 +1,9 @@
+---
+- hosts: ansible4
+  gather_facts: no
+  become: true
+  vars:
+    ftp_user: ftp_user
+    ftp_passw: "{{ lookup('password', 'my_passwd chars=ascii_letters') }}"    # my_passwd is your local file with password (removed from git)
+  roles:
+    - vsftpd

@@ -1,0 +1,31 @@
+---
+# tasks file for dnsmasq role
+
+  - name: Install vsftpd
+    apt: 
+      name: vsftpd
+      update_cache: yes
+
+  - name: Create ftp user
+    user:
+      name: "{{ ftp_user }}"
+      password: "{{ ftp_passw | password_hash('sha256') }}"
+
+  - name: Allow write
+    replace:
+      path: /etc/vsftpd.conf
+      regexp: '^#write_enable'
+      replace: "write_enable"
+
+  - name: Move local user to home directory
+    replace:
+      path: /etc/vsftpd.conf
+      regexp: '^#chroot_'
+      replace: "chroot_"
+
+  - name: Restart and enable service vsftpd
+    service:
+      name: vsftpd
+      state: restarted
+      enabled: yes
+
