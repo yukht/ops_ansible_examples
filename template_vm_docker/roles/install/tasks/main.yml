@@ -1,0 +1,13 @@
+---
+# tasks for install role
+- name: Copy Docker and app files
+  ansible.builtin.copy:
+    src: files/app
+    dest: /
+
+- name: Create volume and change permissions
+  ansible.builtin.file:
+    path: /app
+    mode: '0775'
+    state: directory
+

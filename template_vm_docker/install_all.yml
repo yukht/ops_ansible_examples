@@ -1,0 +1,8 @@
+---
+- hosts: ansible1
+  gather_facts: yes
+  become: true
+  roles:
+    - docker
+    # - install
+
