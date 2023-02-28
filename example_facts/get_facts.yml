@@ -1,4 +1,4 @@
-- hosts: ansible1
+- hosts: ansible
   become: true
   gather_facts: false
   tasks:
