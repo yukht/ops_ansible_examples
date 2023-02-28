@@ -1,0 +1,24 @@
+- hosts: ansible1
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Get system facts
+      setup:
+        filter: "{{ item }}"
+      register: g_facts
+      with_items:
+        - "ansible_distribution"
+        - "ansible_distribution_version"
+        - "ansible_distribution_release"
+        - "ansible_processor_count"
+        - "ansible_processor_cores"
+
+    - name: Create facts dictionary
+      set_fact:
+        display_facts: "{{ g_facts | json_query('results[*].ansible_facts') }}"
+
+    - debug:
+        var: display_facts
+
+    #- debug:
+    #    msg: "OS: {{ g_facts.results[0].ansible_facts.ansible_distribution }} {{ g_facts.results[1].ansible_facts.ansible_distribution_version }} {{ g_facts.results[2].ansible_facts.ansible_distribution_release }}; Processors count: {{ g_facts.results[3].ansible_facts.ansible_processor_count }}, {{ g_facts.results[4].ansible_facts.ansible_processor_cores }} cores"
