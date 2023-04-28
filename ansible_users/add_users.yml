@@ -1,0 +1,39 @@
+---
+- hosts: ansible
+
+  become: true
+  gather_facts: false
+  vars:
+    USER: "ansible"
+  tasks:
+    - name: Get available users
+      getent:
+        database: passwd
+
+    - block:
+      - name: Set passwd fact if the user exists
+        set_fact:
+          user_passwd_list: "{{ item.value }}"
+        when: "'{{ USER }}' in item.key"
+        with_dict: "{{ getent_passwd }}"
+        loop: "{{ getent_passwd }}"
+
+      - name: Show user passwd strings
+        debug:
+          var: user_passwd_list
+
+      when: USER in getent_passwd.keys()
+
+    - block:
+      - name: Show error message about the user
+        debug:
+          msg: "'{{ USER }}' not exists"
+
+      when: USER not in getent_passwd.keys()
+
+    # - name: Show users 
+    #   debug:
+    #     msg: "{{ item }}"
+    # Print dictionary keys for debug
+    # #   loop: "{{ getent_passwd.keys() | list }}"
+    #   loop: "{{ getent_passwd.{{ USER }}[3:] | list }}"
