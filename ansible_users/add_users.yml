@@ -1,10 +1,12 @@
 ---
 - hosts: ansible
-
   become: true
   gather_facts: false
   vars:
-    USER: "ansible"
+    USER: "i.ivanov"
+    USER_INFO: "Ivan Ivanov"
+    GRANT_SUDO: yes
+    PASSWORD_FILE: "pwd/pwd_{{ USER }}"
   tasks:
     - name: Get available users
       getent:
@@ -25,15 +27,42 @@
       when: USER in getent_passwd.keys()
 
     - block:
-      - name: Show error message about the user
+      - name: Print error message about the user
         debug:
           msg: "'{{ USER }}' not exists"
+
+      - name: Read password from file
+        set_fact:
+          USER_PASSWD: '{{ lookup("file", "{{ PASSWORD_FILE }}") | password_hash("sha512") }}'
+        no_log: true
+
+      - name: Create user
+        user:
+          name: "{{ USER }}"
+          password: '{{ USER_PASSWD }}'
+          groups:
+            - sudo
+          append: yes
+          shell: "/bin/bash"
+          system: false
+          create_home: true
+          comment: "{{ USER_INFO }}"
+          state: "present"
+
+      # For sudoers block
+      - name: Add user to the sudoers and validate before saving
+        lineinfile:
+          path: /etc/sudoers
+          state: present
+          insertafter: EOF
+          line: '{{ USER }} ALL=(ALL:ALL) NOPASSWD: ALL'
+          validate: /usr/sbin/visudo -cf %s
+        when: GRANT_SUDO
 
       when: USER not in getent_passwd.keys()
 
     # - name: Show users 
     #   debug:
     #     msg: "{{ item }}"
-    # Print dictionary keys for debug
     # #   loop: "{{ getent_passwd.keys() | list }}"
     #   loop: "{{ getent_passwd.{{ USER }}[3:] | list }}"
