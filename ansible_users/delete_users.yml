@@ -1,0 +1,52 @@
+---
+- hosts: ansible
+
+  become: true
+  gather_facts: false
+  vars:
+    USER: "i.ivanov"
+    GRANT_SUDO: yes
+  tasks:
+    - name: Get available users
+      getent:
+        database: passwd
+
+    - block:
+      - name: Set passwd fact if the user exists
+        set_fact:
+          user_passwd_list: "{{ item.value }}"
+        when: "'{{ USER }}' in item.key"
+        with_dict: "{{ getent_passwd }}"
+        loop: "{{ getent_passwd }}"
+
+      - name: Show user passwd strings
+        debug:
+          var: user_passwd_list
+
+      - name: Delete user
+        user:
+          name: "{{ USER }}"
+          groups:
+            - sudo
+          shell: "/bin/bash"
+          system: false
+          create_home: false
+          remove: true
+          state: "absent"
+
+      - name: Delete user from sudoers and validate before saving
+        lineinfile:
+          path: /etc/sudoers
+          regexp: '^{{ USER }}'
+          state: absent
+          validate: /usr/sbin/visudo -cf %s
+        when: GRANT_SUDO
+
+      when: USER in getent_passwd.keys()
+
+    - block:
+      - name: Print error message about the user
+        debug:
+          msg: "'{{ USER }}' not exists"
+      when: USER not in getent_passwd.keys()
+
