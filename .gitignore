@@ -1,0 +1,9 @@
+# gitignore
+#/.gitignore
+# IDE files
+**/.vscode-server
+# Local draft directories
+**/install_docker_mysql/*
+**/*ssh_key*.pem
+# temporary! (project in work)
+/example_roles/*
